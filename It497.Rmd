@@ -1,0 +1,159 @@
+---
+title: 'IT497 Fall 2016 Exam #1 Part 2'
+author: "Nishant Kuhar"
+date: "10/1/2016"
+output: html_document
+---
+1.
+Creating Data Frame and naming it df.
+```{r}
+df<-read.csv("http://www.itk.ilstu.edu/faculty/jrwolf/wit.csv")
+```
+a.
+Creating a variable x, and comparing value to find row with Reddit company Data
+num_of_female_eng variable shows number of female software eng. working in Reddit
+```{r}
+x<-c("reddit")
+num_of_female_eng<-c(df[is.element(df$key,x),])
+num_of_female_eng$num_female_eng
+```
+b.Sum shows the total number of females working.
+```{r}
+sum(df$num_female_eng)
+```
+
+2.
+Creating Data Frame and naming it usBirthData.
+```{r}
+### Start usBirthData Code#######
+install.packages("rvest")
+library("rvest")
+
+usBirthData <- read_html("https://www.ssa.gov/oact/babynames/numberUSbirths.html")
+usBirthData <- html_table(html_node(usBirthData, "table.border"), header=TRUE)
+names(usBirthData) <- c("Year", "Female", "Male", "Total")
+### End usBirthData Code #######
+```
+a.The year with most children.
+"maxNoOfBirths" variable defines the highest number of births in any year.
+Then we compare the maxNoOfBirths with the row that contains it and find the year.
+```{r}
+maxNoOfBirths<-max(usBirthData$Total)
+usBirthData$Year[is.element(usBirthData$Total,maxNoOfBirths)]
+```
+
+b.
+"minNoOfBirths" variable defines the lowest number of births in any year.
+Then we compare the minNoOfBirths with the row that contains it and find the year.
+```{r}
+minNoOfBirths<-min(usBirthData$Total)
+usBirthData$Year[is.element(usBirthData$Total,minNoOfBirths)]
+```
+
+3.
+
+Loading the table from url and making data frame topCities
+```{r}
+topCities <- read_html("https://en.wikipedia.org/wiki/List_of_cities_proper_by_population")
+topCities <- html_table(
+        html_node(
+                topCities, "table.sortable"
+        ), header=TRUE, trim=TRUE
+)
+names(topCities) <- c(
+        "Rank", "City", "Image", "Population", "Definition",
+        "Total.Area", "Population.Density", "Country"
+)
+topCities$Image <- NULL
+topCities$Population <- as.numeric(
+        gsub(",", "",
+                gsub("^[0-9]+[^0-9]([0-9\\.,]+).*$", "\\1", topCities$Population)
+        )
+)
+topCities$Definition <- gsub("^([^\\[]+).*$", "\\1", topCities$Definition)
+topCities$Total.Area <- as.numeric(
+        gsub(",", "",
+                gsub("^[0-9]+[^0-9]([0-9\\.,]+).*$", "\\1", topCities$Total.Area)
+        )
+)
+topCities$Population.Density <- as.numeric(gsub(",", "", topCities$Population.Density))
+```
+
+Problem with the data set cannot compare the country column to its corresponding values
+```{r}
+topCities$Country==" India"
+topCities$Country=="India"
+x<- topCities[is.element(topCities$Country,"India"),]
+x<- x[ order(x$Total.Area,decreasing = T) ]
+x$City[1:5]
+```
+way to do it
+code:
+x<- topCities[is.element(topCities$Country,"India"),]
+x<- x[ order(x$Total.Area,decreasing = T) ]
+x$City[1:5]
+
+Similarly for b part
+
+
+4.Creating Data Frame and naming it snp500.
+```{r}
+########## SnP Code Start ##############
+snp500 <- read_html("https://en.wikipedia.org/wiki/List_of_S%26P_500_companies")
+snp500 <- html_table(
+        html_node(
+                snp500, "table.wikitable:nth-child(6)"
+        ), header=TRUE
+)
+names(snp500) <- c(
+        "Ticker", "Name", "SEC.Filing", "GICS.Sector",
+        "GICS.SubIndustry", "Location.HQ", "Date.Added", "CIK"
+)
+########## SnP Code End ##############
+```
+a.Names of firms added in S&P500 since 2010
+  Declare a variable x with the value of "2010-01-01". Compare and show results.
+```{r}
+x<-c("2010-01-01")
+snp500$Name[snp500$Date.Added>=x]
+```
+
+b.Number of firms in the table. 
+The answer is simply calculating the number of rows which corresponds to the number of firms.
+```{r}
+nrow(snp500)
+```
+
+
+5.
+Defining a Data Frame called: venues
+```{r}
+ ### Start Venue R Code ####
+ cricket_world_cup <- read_html("http://en.wikipedia.org/wiki/2015_Cricket_World_Cup")
+ venues = html_table(html_nodes(cricket_world_cup, "table")[[5]])
+ ### End Venue R Code ####
+```
+Viewing the str of venues
+```{r}
+ str(venues)
+```
+ As we can see the capacity col in venues is of char data type changing it to numeric data type
+ using gsub
+```{r}
+ venues$Capacity<- venues$Capacity
+venues$Capacity<-as.numeric(gsub(",", "", venues$Capacity))
+```
+ a. Maximun capacity venue name
+```{r}
+MaxCapacity <- max(venues$Capacity)
+venueNameWithMaxCapacity<- venues$Venue[is.element(venues$Capacity,MaxCapacity)]
+venueNameWithMaxCapacity
+```
+
+b. Minimum capacity venue name
+
+```{r}
+MinCapacity <- min(venues$Capacity)
+venueNameWithMinCapacity<- venues$Venue[is.element(venues$Capacity,MinCapacity)]
+venueNameWithMinCapacity
+```
